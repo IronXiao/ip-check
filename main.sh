@@ -6,19 +6,20 @@ function multitest(){
     ips=$(cat hits.txt | tr -d '\r')
     for ip in $ips
     do
-        echo "resolve ip = $ip"
+        rm -rf data.txt
+        echo "resolve host by $ip ..."
         curl --ipv4 --resolve service.baipiaocf.ml:443:$ip --retry 1 https://service.baipiaocf.ml -o data.txt -# --connect-timeout 2 --max-time 3
-        if [ -f "data.txt" ]
+        if [ $? -eq 0 -a -f "data.txt" ]
         then
             break
         fi
     done
     domain=$(grep domain= data.txt | cut -f 2- -d'=')
     file=$(grep file= data.txt | cut -f 2- -d'=')
-    rm data.txt
+    rm -rf data.txt
     for ip in $ips
     do
-        echo "speed ip = $ip"
+        echo "test ip $ip ..."
         curl --resolve $domain:443:$ip https://$domain/$file -o /dev/null --connect-timeout 1 --max-time 10 > log.txt 2>&1
         cat log.txt | tr '\r' '\n' | awk '{print $NF}' | sed '1,3d;$d' | grep -v 'k\|M' >> speed.txt
         for i in `cat log.txt | tr '\r' '\n' | awk '{print $NF}' | sed '1,3d;$d' | grep k | sed 's/k//g'`
@@ -46,9 +47,10 @@ function multitest(){
         rm -rf log.txt speed.txt
         if [ $realbandwidth -eq 0 ]
         then
+            echo "  $ip $realbandwidth kB/s"
             continue
         fi
-        echo "$ip $realbandwidth kB/s"
+        echo "  $ip $realbandwidth kB/s"
         echo "$ip $realbandwidth kB/s" >> multi_tmp.txt
     done
     clear
@@ -73,6 +75,11 @@ if [[ $ret -eq 0 ]]
 then
     unzip_ips
     cat cloudflare-daily/*.txt >> all.txt
+    ./ip_check
+    multitest
+    echo "批量测速已完成，请检查multi_speed.txt"
+elif [ -f "all.txt" ]
+then
     ./ip_check
     multitest
     echo "批量测速已完成，请检查multi_speed.txt"
