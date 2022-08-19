@@ -75,7 +75,7 @@ then
     bandwidth=1
 fi
 
-if [ $re_dl == 'y' ]
+if [ "$re_dl" == "y" ]
 then
     download_zips
 fi
