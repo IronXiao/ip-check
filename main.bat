@@ -12,6 +12,8 @@ set /a hit=0
 set /a tasknum=10
 set /a bandwidth=1
 set /p bandwidth=请设置期望的带宽大小(默认最小%bandwidth%,单位 Mbps):
+set re_dl=n
+set /p re_dl=请设置是否下载远程ip 列表文件[y/n](默认为%re_dl%):
 if %bandwidth% EQU 0 (set /a bandwidth=1)
 set /a speed=bandwidth*128
 call :start
@@ -19,7 +21,9 @@ exit
 
 
 :start
+if !re_dl! == y (
 curl https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily -o cloudflare-daily.zip --connect-timeout 30 --retry 10
+)
 ip_check
 set domain=cloudflaremirrors.com
 set file=archlinux/iso/latest/archlinux-x86_64.iso

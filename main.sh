@@ -69,14 +69,19 @@ function download_zips(){
 
 
 read -p "请设置期望的带宽大小(默认最小1,单位 Mbps):" bandwidth
+read -p "是否下载远程ip 文件[y/n]:" re_dl
 if [ -z "$bandwidth" ]
 then
     bandwidth=1
 fi
+
+if [ $re_dl == 'y' ]
+then
+    download_zips
+fi
+
 speed=$[$bandwidth*128]
 
-
-download_zips
 ./ip_check
 multitest
 echo "批量测速已完成，请检查result.txt"
