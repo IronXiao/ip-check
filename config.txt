@@ -1,6 +1,0 @@
-IP_FILE = 'all.txt'
-THREAD_NUM = 100
-MAX_RETRY = 1
-TIME_OUT = 2
-NAME_SERVER = "icook.tw"
-OUT_FILE = "hits.txt"

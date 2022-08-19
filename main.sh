@@ -61,7 +61,7 @@ function multitest(){
 
 function download_zips(){
     rm -rf daily.zip
-    curl https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily -o daily.zip --connect-timeout 30 --max-time 10
+    curl https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily -o cloudflare-daily.zip --connect-timeout 30 --max-time 10 --retry 10
     echo $?
 }
 
@@ -73,14 +73,13 @@ function unzip_ips(){
 ret=$(download_zips)
 if [[ $ret -eq 0 ]]
 then
-    unzip_ips
-    cat cloudflare-daily/*.txt >> all.txt
+#    unzip_ips
+#    cat cloudflare-daily/*.txt >> all.txt
     ./ip_check
     multitest
     echo "批量测速已完成，请检查multi_speed.txt"
-elif [ -f "all.txt" ]
+elif [ -f "hits.txt" ]
 then
-    ./ip_check
     multitest
     echo "批量测速已完成，请检查multi_speed.txt"
 else
