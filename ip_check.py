@@ -228,6 +228,8 @@ def main():
     passed_ips = filter_valid_ips(all_ips, g_config.THREAD_NUM,
                                   g_config.NAME_SERVER, g_config.TIME_OUT, g_config.MAX_RETRY)
     write_valid_ips_to_file(passed_ips)
+    if not g_config.TEST_DOWNLOAD_SPEED:
+        return
     if len(passed_ips) > g_config.MAX_FILTER_BETTER_IP_COUNT:
         print('可用ip 太多，随机挑选{}个'.format(g_config.MAX_FILTER_BETTER_IP_COUNT))
         passed_ips = filter_ip_by_num(

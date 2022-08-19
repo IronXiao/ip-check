@@ -1,5 +1,5 @@
 # IP列表输入文件
-IP_FILE = 'ip.txt'
+IP_FILE = 'cloudflare-daily.zip'
 # 检查ip 可用性的多线程数量
 THREAD_NUM = 100
 # 检查ip 可用性重试次数
@@ -13,9 +13,9 @@ VALID_IP_FILE = 'hits.txt'
 # 优选ip 输出文件
 BETTER_IP_FILE = 'result.txt'
 # 从ip 列表选择的ip 数量
-MAX_FILTER_VALID_IP_COUNT = 500
+MAX_FILTER_VALID_IP_COUNT = 2000
 # 从可用ip 抽选的待测优选ip 数量
-MAX_FILTER_BETTER_IP_COUNT = 10
+MAX_FILTER_BETTER_IP_COUNT = 200
 # 测试下载连接超时
 TEST_DOWNLOAD_CONNECTTIMEOUT = 1
 # 期望网速
@@ -32,3 +32,5 @@ TEST_DOWNLOAD_DOMAIN_PORT = 443
 TEST_DOWNLOAD_TIMEOUT = 20
 # 下载文件路径
 TEST_DOWNLOAD_FILE_PATH = 'archlinux/iso/latest/archlinux-x86_64.iso'
+# 是否测试下载速度
+TEST_DOWNLOAD_SPEED = False
