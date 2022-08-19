@@ -10,7 +10,7 @@ import re
 import zipfile
 from config import Config
 import ipaddress
-import pycurl
+#import pycurl
 
 g_config = Config()
 
@@ -37,27 +37,27 @@ def gen_ip_form_network(ip_str):
     return all_ips
 
 
-def check_speed(ip):
-    with open(g_config.TEST_DOWNLOAD_SAVE_FILE, 'wb') as f:
-        curl = pycurl.Curl()
-        curl.setopt(curl.URL, g_config.TEST_DOWNLOAD_FILE_LINK)
-        curl.setopt(curl.TIMEOUT, g_config.TEST_DOWNLOAD_TIMEOUT)
-        curl.setopt(curl.CONNECTTIMEOUT, g_config.TEST_DOWNLOAD_CONNECTTIMEOUT)
-        curl.setopt(curl.USERAGENT, g_config.USER_AGENT)
-        curl.setopt(curl.IPRESOLVE, curl.IPRESOLVE_V4)
-        curl.setopt(curl.RESOLVE, ['{}:{}:{}'.format(
-            g_config.TEST_DOWNLOAD_DOMAIN, g_config.TEST_DOWNLOAD_DOMAIN_PORT, ip)])
-        curl.setopt(curl.WRITEDATA, f)
-        try:
-            curl.perform()
-        except Exception:
-            pass
-        speed = int(curl.getinfo(curl.SPEED_DOWNLOAD) / 1024)
-        print('  {} 平均下载速度为: {} kB/s'.format(ip, speed))
-        curl.close()
-        if speed > g_config.EXPECTED_SPEED:
-            return True, speed
-        return False, -1
+#def check_speed(ip):
+#    with open(g_config.TEST_DOWNLOAD_SAVE_FILE, 'wb') as f:
+#        curl = pycurl.Curl()
+#        curl.setopt(curl.URL, g_config.TEST_DOWNLOAD_FILE_LINK)
+#        curl.setopt(curl.TIMEOUT, g_config.TEST_DOWNLOAD_TIMEOUT)
+#        curl.setopt(curl.CONNECTTIMEOUT, g_config.TEST_DOWNLOAD_CONNECTTIMEOUT)
+#        curl.setopt(curl.USERAGENT, g_config.USER_AGENT)
+#        curl.setopt(curl.IPRESOLVE, curl.IPRESOLVE_V4)
+#        curl.setopt(curl.RESOLVE, ['{}:{}:{}'.format(
+#            g_config.TEST_DOWNLOAD_DOMAIN, g_config.TEST_DOWNLOAD_DOMAIN_PORT, ip)])
+#        curl.setopt(curl.WRITEDATA, f)
+#        try:
+#            curl.perform()
+#        except Exception:
+#            pass
+#        speed = int(curl.getinfo(curl.SPEED_DOWNLOAD) / 1024)
+#        print('  {} 平均下载速度为: {} kB/s'.format(ip, speed))
+#        curl.close()
+#        if speed > g_config.EXPECTED_SPEED:
+#            return True, speed
+#        return False, -1
 
 
 def find_txt_in_dir(dir):
@@ -125,7 +125,6 @@ def read_all_ips_form_zipfile(file):
                 try:
                     with zip.open(txt_file) as f:
                         ip = f.readline().decode('utf-8').strip()
-                        print('read ip', ip)
                         while ip and is_ip(ip):
                             ip_list.append(ip)
                             ip = f.readline().decode('utf-8').strip()
@@ -227,13 +226,13 @@ def main():
     all_ips = read_all_ips_form_path(g_config.IP_FILE)
     passed_ips = filter_valid_ips(all_ips, g_config.THREAD_NUM,
                                   g_config.NAME_SERVER, g_config.TIME_OUT, g_config.MAX_RETRY)
-    write_valid_ips_to_file(passed_ips)
-    if not g_config.TEST_DOWNLOAD_SPEED:
-        return
     if len(passed_ips) > g_config.MAX_FILTER_BETTER_IP_COUNT:
         print('可用ip 太多，随机挑选{}个'.format(g_config.MAX_FILTER_BETTER_IP_COUNT))
         passed_ips = filter_ip_by_num(
             passed_ips, g_config.MAX_FILTER_BETTER_IP_COUNT)
+    write_valid_ips_to_file(passed_ips)
+    if not g_config.TEST_DOWNLOAD_SPEED:
+        return
     good_ips = filter_better_ip(passed_ips)
     good_ips = sorted(good_ips.items(), key=lambda kv: kv[1], reverse=True)
     write_better_ips_to_file(good_ips)

@@ -51,7 +51,7 @@ class Config:
     TEST_DOWNLOAD_SAVE_FILE = 'down.bin'
     USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
     EXPECTED_SPEED = 5*1024
-    TEST_DOWNLOAD_SPEED = True
+    TEST_DOWNLOAD_SPEED = False
 
     envs = []
 

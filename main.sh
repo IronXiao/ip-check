@@ -45,43 +45,38 @@ function multitest(){
         done
         realbandwidth=$[$max/1024]
         rm -rf log.txt speed.txt
-        if [ $realbandwidth -eq 0 ]
-        then
-            echo "  $ip $realbandwidth kB/s"
-            continue
-        fi
         echo "  $ip $realbandwidth kB/s"
+        if [[ $realbandwidth -gt $speed ]]
+        then
         echo "$ip $realbandwidth kB/s" >> multi_tmp.txt
+        fi
     done
-    clear
-    sort -r -n -k 2 -t \  multi_tmp.txt
-    sort -r -n -k 2 -t \  multi_tmp.txt > multi_speed.txt
+    if [ -f "multi_tmp.txt" ]
+    then
+        echo "筛选ip 为:"
+        sort -r -n -k 2 -t \  multi_tmp.txt
+        sort -r -n -k 2 -t \  multi_tmp.txt > result.txt
+    else
+        echo "没有筛选到可用ip"
+    fi
     rm -rf multi_tmp.txt
 }
 
 function download_zips(){
     rm -rf daily.zip
-    curl https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily -o cloudflare-daily.zip --connect-timeout 30 --max-time 10 --retry 10
-    echo $?
+    curl https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily -o cloudflare-daily.zip --connect-timeout 30 --retry 10
 }
 
-function unzip_ips(){
-    rm -rf cloudflare-daily
-    unzip daily.zip
-}
 
-ret=$(download_zips)
-if [[ $ret -eq 0 ]]
+read -p "请设置期望的带宽大小(默认最小1,单位 Mbps):" bandwidth
+if [ -z "$bandwidth" ]
 then
-#    unzip_ips
-#    cat cloudflare-daily/*.txt >> all.txt
-    ./ip_check
-    multitest
-    echo "批量测速已完成，请检查multi_speed.txt"
-elif [ -f "hits.txt" ]
-then
-    multitest
-    echo "批量测速已完成，请检查multi_speed.txt"
-else
-    echo "文件下载失败，建议稍后重试！！！"
+    bandwidth=1
 fi
+speed=$[$bandwidth*128]
+
+
+download_zips
+./ip_check
+multitest
+echo "批量测速已完成，请检查result.txt"
