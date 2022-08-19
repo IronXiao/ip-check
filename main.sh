@@ -19,7 +19,7 @@ function multitest(){
     rm -rf data.txt
     for ip in $ips
     do
-        echo "test ip $ip ..."
+        echo "正在测试$ip ..."
         curl --resolve $domain:443:$ip https://$domain/$file -o /dev/null --connect-timeout 1 --max-time 10 > log.txt 2>&1
         cat log.txt | tr '\r' '\n' | awk '{print $NF}' | sed '1,3d;$d' | grep -v 'k\|M' >> speed.txt
         for i in `cat log.txt | tr '\r' '\n' | awk '{print $NF}' | sed '1,3d;$d' | grep k | sed 's/k//g'`
@@ -45,7 +45,7 @@ function multitest(){
         done
         realbandwidth=$[$max/1024]
         rm -rf log.txt speed.txt
-        echo "  $ip $realbandwidth kB/s"
+        echo "  $ip 峰值速度 $realbandwidth kB/s"
         if [[ $realbandwidth -gt $speed ]]
         then
         echo "$ip $realbandwidth kB/s" >> multi_tmp.txt
