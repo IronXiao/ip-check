@@ -25,10 +25,11 @@ if !re_dl! == y (
 curl https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily -o cloudflare-daily.zip --connect-timeout 30 --retry 10
 )
 :redo
-ip_check
+ip_check.exe
 
 :rtt
 del rtt.txt meta.txt data.txt > nul 2>&1
+RD /S /Q rtt > nul 2>&1
 mkdir rtt
 for /f "tokens=2 delims=:" %%i in ('find /c /v "" hits.txt') do (
 set /a ipnum=%%i
@@ -46,7 +47,6 @@ title RTT测试中
 goto rtttest
 
 :rtttest
-set /a tasknum=10
 start /b rtt.bat !n! > nul
 if !n! EQU !tasknum! (goto rttstatus) else (set /a n=n+1&goto rtttest)
 
@@ -82,7 +82,7 @@ set anycast=%%j
 echo 正在测试 !anycast!
 curl --resolve !domain!:443:!anycast! https://!domain!/!file! -o nul --connect-timeout 1 --max-time 10 > CR.txt 2>&1
 findstr "0:" CR.txt >> CRLF.txt
-CR2CRLF CRLF.txt > nul
+CR2CRLF.exe CRLF.txt > nul
 for /f "delims=" %%i in (CRLF.txt) do (
 set s=%%i
 set s=!s:~73,5!
