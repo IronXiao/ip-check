@@ -41,13 +41,12 @@ class Config:
     VALID_IP_FILE = 'out.txt'
     BETTER_IP_FILE = 'result.txt'
     NS_TEST_SERVER = 'http://{}/cdn-cgi/trace'
-    NS_TEST_RESPONSE = 'h={}'.format(NAME_SERVER)
+    NS_TEST_RESPONSE = 'h={}'
     TEST_DOWNLOAD_DOMAIN = 'cloudflaremirrors.com'
     TEST_DOWNLOAD_DOMAIN_PORT = 443
     TEST_DOWNLOAD_TIMEOUT = 10
     TEST_DOWNLOAD_CONNECTTIMEOUT = 1
     TEST_DOWNLOAD_FILE_PATH = 'archlinux/iso/latest/archlinux-x86_64.iso'
-    TEST_DOWNLOAD_FILE_LINK = 'https://{}/{}'.format(TEST_DOWNLOAD_DOMAIN, TEST_DOWNLOAD_FILE_PATH)
     TEST_DOWNLOAD_SAVE_FILE = 'down.bin'
     USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
     EXPECTED_SPEED = 5*1024
@@ -66,6 +65,8 @@ class Config:
         self.envs = EnvLoader.load_with_file(self.CONFIG_FILE)
         self.update_configs(self.envs)
 
+    def get_test_server(self):
+        return 'https://{}/{}'.format(self.TEST_DOWNLOAD_DOMAIN, self.TEST_DOWNLOAD_FILE_PATH)
 
 class EnvLoader:
     envs = []

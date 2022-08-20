@@ -72,11 +72,12 @@ def find_txt_in_dir(dir):
 
 def filter_ip_valid_internal(ip, nameserver, timeout):
     url = g_config.NS_TEST_SERVER.format(ip)
+    check_h = g_config.NS_TEST_RESPONSE.format(g_config.NAME_SERVER)
     try:
         with requests.get(
                 url, headers={'Host': nameserver}, timeout=timeout) as r:
             if r.status_code == 200:
-                if g_config.NS_TEST_RESPONSE in r.text:
+                if check_h in r.text:
                     return True
                 else:
                     return False
