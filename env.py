@@ -2,7 +2,7 @@
 # 可以从https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily 保存为cloudflare-daily.zip
 # 或者使用ip.txt
 # 假设ip.txt 是网段的话讲计算出所有子网ip
-IP_FILE = 'cloudflare-daily.zip'
+IP_FILE = 'ip.txt'
 # 检查ip 可用性的多线程数量
 THREAD_NUM = 100
 # 检查ip 可用性重试次数
@@ -16,7 +16,7 @@ VALID_IP_FILE = 'hits.txt'
 # 优选ip 输出文件，当前无效
 BETTER_IP_FILE = 'result.txt'
 # 从ip 列表中随机选择的${MAX_FILTER_VALID_IP_COUNT}个ip 用来检测可用性
-MAX_FILTER_VALID_IP_COUNT = 2000
+MAX_FILTER_VALID_IP_COUNT = 1000
 # 从可用ip 列表中随机抽选的待测优选${MAX_FILTER_BETTER_IP_COUNT}个ip 用来测试网速
 MAX_FILTER_BETTER_IP_COUNT = 200
 # 测试下载连接超时，当前无效
