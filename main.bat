@@ -129,6 +129,7 @@ echo %%i
 )
 ) else (
 echo 没有筛选到可用ip
+goto redo
 )
 pause > nul
 goto :eof
