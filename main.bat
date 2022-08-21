@@ -36,7 +36,7 @@ goto redo
 set domain=cloudflaremirrors.com
 set file=archlinux/iso/latest/archlinux-x86_64.iso
 title 启动测速
-del result.txt > nul 2>&1
+del result.txt tmp_result.txt > nul 2>&1
 
 for /f "delims=" %%i in (hits.txt) do (
 del CRLF.txt cut.txt speed.txt > nul 2>&1
@@ -78,7 +78,7 @@ if %%i GEQ !max! set /a max=%%i
 )
 echo !anycast! 峰值速度 !max! kB/s
 if !max! GEQ !speed! (
-echo !anycast!: !max! kB/s>> result.txt
+echo !max! !anycast!>> tmp_result.txt
 set /a hit=!hit!+1
 )
 )
@@ -86,9 +86,12 @@ del rtt.txt data.txt CR.txt CRLF.txt cut.txt speed.txt meta.txt > nul 2>&1
 RD /S /Q rtt > nul 2>&1
 if !hit! GEQ 1 (
 echo 筛选到可用ip：
-for /f "delims=" %%i in (result.txt) do (
-echo %%i
+for /f "tokens=1,2 delims= " %%i in ('sort /r tmp_result.txt') do (
+echo %%j 下载速度 %%i kB/s
+echo %%j 下载速度 %%i kB/s>>result.txt
 )
+del tmp_result.txt > nul 2>&1
+echo 筛选ip 记录于result.txt 中
 ) else (
 echo 没有筛选到可用ip，重试... ...
 goto redo
