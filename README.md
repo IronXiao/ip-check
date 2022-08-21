@@ -30,9 +30,14 @@
    MAX_FILTER_RTT_IP_COUNT = 100
    # rtt 测试 配置
    RTT_TEST_HOST = 'www.cloudflare.com'
-   RTT_TEST_TIMEOUT = 3
+   # RTT 测试请求超时
+   RTT_TEST_TIMEOUT = 4
+   # RTT 测试多线程数量
    RTT_TEST_MAX_THREAD_NUM = 20
+   # 允许的RTT 延时
    RTT_ALLOWED_TIMEOUT = 2500
+   # 设置每个ip 的RTT 测试次数
+   RTT_TEST_TIMES = 2
    # 测试下载连接超时，当前无效
    TEST_DOWNLOAD_CONNECTTIMEOUT = 1
    # 期望网速，当前无效
