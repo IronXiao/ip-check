@@ -103,16 +103,18 @@ def print_msg_sync(str):
 
 def check_rtt(ip):
     url = g_config.NS_TEST_SERVER.format(ip)
-    times = [-1, -1]
-    for i in range(0, len(times)):
+    times = []
+    count = 0
+    while count < g_config.RTT_TEST_TIMES:
         try:
             with requests.get(url, headers={'Host': g_config.RTT_TEST_HOST}, timeout=g_config.RTT_TEST_TIMEOUT) as r:
                 if r.status_code == 200:
-                    times[i] = r.elapsed.total_seconds()*1000
+                    times.append(r.elapsed.total_seconds()*1000)
                 else:
                     return None, -1
         except Exception as e:
             return None, -1
+        count += 1
     t = int(sum(times)/len(times))
     return ip, t
 

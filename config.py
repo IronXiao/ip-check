@@ -44,6 +44,7 @@ class Config:
     NS_TEST_SERVER = 'http://{}/cdn-cgi/trace'
     RTT_TEST_HOST = 'www.cloudflare.com'
     RTT_TEST_TIMEOUT = 5
+    RTT_TEST_TIMES = 2
     RTT_TEST_MAX_THREAD_NUM = 20
     RTT_ALLOWED_TIMEOUT = 2500
     NS_TEST_RESPONSE = 'h={}'
