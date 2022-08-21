@@ -1,22 +1,11 @@
 #!/bin/bash
 # better-cloudflare-ip
+domain='cloudflaremirrors.com'
+file='archlinux/iso/latest/archlinux-x86_64.iso'
 
 function multitest(){
     rm -rf multi_tmp.txt data.txt
     ips=$(cat hits.txt | tr -d '\r')
-    for ip in $ips
-    do
-        rm -rf data.txt
-        echo "resolve host by $ip ..."
-        curl --ipv4 --resolve service.baipiaocf.ml:443:$ip --retry 1 https://service.baipiaocf.ml -o data.txt -# --connect-timeout 2 --max-time 3
-        if [ $? -eq 0 -a -f "data.txt" ]
-        then
-            break
-        fi
-    done
-    domain=$(grep domain= data.txt | cut -f 2- -d'=')
-    file=$(grep file= data.txt | cut -f 2- -d'=')
-    rm -rf data.txt
     for ip in $ips
     do
         echo "正在测试$ip ..."
@@ -56,8 +45,10 @@ function multitest(){
         echo "筛选ip 为:"
         sort -r -n -k 2 -t \  multi_tmp.txt
         sort -r -n -k 2 -t \  multi_tmp.txt > result.txt
+        echo "测速完成，请检查result.txt"
     else
-        echo "没有筛选到可用ip"
+        echo "没有筛选到可用ip, 重试... ..."
+        test_job
     fi
     rm -rf multi_tmp.txt
 }
@@ -65,6 +56,20 @@ function multitest(){
 function download_zips(){
     rm -rf daily.zip
     curl https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily -o cloudflare-daily.zip --connect-timeout 30 --retry 10
+}
+
+
+function test_job() {
+    rm -rf hits.txt
+    ./ip_check
+    if [ -f "hits.txt" ]
+    then
+        echo "可用ip 列表生成成功"
+        multitest
+    else
+        echo "生成可用ip 列表失败，重试..."
+        test_job
+    fi
 }
 
 
@@ -82,6 +87,4 @@ fi
 
 speed=$[$bandwidth*128]
 
-./ip_check
-multitest
-echo "批量测速已完成，请检查result.txt"
+test_job

@@ -36,11 +36,16 @@ class Config:
     MAX_RETRY = 2
     TIME_OUT = 3
     MAX_FILTER_VALID_IP_COUNT = 1500
+    MAX_FILTER_RTT_IP_COUNT = 100
     MAX_FILTER_BETTER_IP_COUNT = 20
     NAME_SERVER = 'icook.tw'
     VALID_IP_FILE = 'out.txt'
     BETTER_IP_FILE = 'result.txt'
     NS_TEST_SERVER = 'http://{}/cdn-cgi/trace'
+    RTT_TEST_HOST = 'www.cloudflare.com'
+    RTT_TEST_TIMEOUT = 5
+    RTT_TEST_MAX_THREAD_NUM = 20
+    RTT_ALLOWED_TIMEOUT = 2500
     NS_TEST_RESPONSE = 'h={}'
     TEST_DOWNLOAD_DOMAIN = 'cloudflaremirrors.com'
     TEST_DOWNLOAD_DOMAIN_PORT = 443

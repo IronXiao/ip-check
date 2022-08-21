@@ -3,6 +3,7 @@
 
 import os
 import random
+import threading
 import numpy as np
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -13,6 +14,7 @@ import ipaddress
 #import pycurl
 
 g_config = Config()
+g_lock = threading.Lock()
 
 REGEX_IPS = re.compile(
     '^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$')
@@ -37,7 +39,14 @@ def gen_ip_form_network(ip_str):
     return all_ips
 
 
-#def check_speed(ip):
+def thread_sync(fn):
+    def fn_do(*args, **kw):
+        g_lock.acquire()
+        fn(*args, **kw)
+        g_lock.release()
+    return fn_do
+
+# def check_speed(ip):
 #    with open(g_config.TEST_DOWNLOAD_SAVE_FILE, 'wb') as f:
 #        curl = pycurl.Curl()
 #        curl.setopt(curl.URL, g_config.TEST_DOWNLOAD_FILE_LINK)
@@ -85,6 +94,27 @@ def filter_ip_valid_internal(ip, nameserver, timeout):
                 return False
     except Exception as e:
         return False
+
+
+@thread_sync
+def print_msg_sync(str):
+    print(str)
+
+
+def check_rtt(ip):
+    url = g_config.NS_TEST_SERVER.format(ip)
+    times = [-1, -1]
+    for i in range(0, len(times)):
+        try:
+            with requests.get(url, headers={'Host': g_config.RTT_TEST_HOST}, timeout=g_config.RTT_TEST_TIMEOUT) as r:
+                if r.status_code == 200:
+                    times[i] = r.elapsed.total_seconds()*1000
+                else:
+                    return None, -1
+        except Exception as e:
+            return None, -1
+    t = int(sum(times)/len(times))
+    return ip, t
 
 
 def test_ip(ip, nameserver, timeout, max_retry):
@@ -165,27 +195,47 @@ def read_all_ips_form_path(path):
     for file in all_ip_files:
         all_ips += read_all_ips_form_file(file)
     all_ips = list(dict.fromkeys(all_ips))
-    print("#######共计读取到%d 个ip" % len(all_ips))
+    print("共计读取到%d 个ip" % len(all_ips))
     if len(all_ips) > g_config.MAX_FILTER_VALID_IP_COUNT:
         print('ip过多,随机挑选{}个测试可用性'.format(g_config.MAX_FILTER_VALID_IP_COUNT))
         all_ips = filter_ip_by_num(all_ips, g_config.MAX_FILTER_VALID_IP_COUNT)
     return all_ips
 
 
-def filter_valid_ips(all_ips=[], max_thread_count=10, nameserver="icook.tw", timeout=3, max_retry=1):
+def filter_valid_ips(all_ips=[], max_thread_count=10, nameserver=g_config.NAME_SERVER, timeout=3, max_retry=1):
+    passed_ips = []
     if all_ips:
-        print('检测ip 可用性... ...')
+        print('检测ip可用性, 总数为{}'.format(len(all_ips)))
         thread_pool_executor = ThreadPoolExecutor(
-            max_workers=max_thread_count, thread_name_prefix="test_")
+            max_workers=max_thread_count, thread_name_prefix="valid_")
         all_task = [thread_pool_executor.submit(
             test_ip, ip, nameserver, timeout, max_retry) for ip in all_ips]
-        passed_ips = []
         for future in as_completed(all_task):
             ret = future.result()
             if ret:
                 passed_ips.append(ret)
         thread_pool_executor.shutdown(wait=True)
-        return passed_ips
+    print('可用性结果为: 总数{}, {} pass'.format(len(all_ips), len(passed_ips)))
+    return passed_ips
+
+
+def filter_ips_by_rtt(all_ips=[]):
+    passed_ips = []
+    if all_ips:
+        print('检测ip rtt, 总数为{}'.format(len(all_ips)))
+        thread_pool_executor = ThreadPoolExecutor(
+            max_workers=g_config.RTT_TEST_MAX_THREAD_NUM, thread_name_prefix="rtt_")
+        all_task = [thread_pool_executor.submit(
+            check_rtt, ip) for ip in all_ips]
+        for future in as_completed(all_task):
+            ip, rtt = future.result()
+            if ip:
+                print('{} 平均延时为 {} ms'.format(ip, rtt))
+                if rtt < g_config.RTT_ALLOWED_TIMEOUT:
+                    passed_ips.append(ip)
+        thread_pool_executor.shutdown(wait=True)
+    print('RTT结果为: 总数{}, {} pass'.format(len(all_ips), len(passed_ips)))
+    return passed_ips
 
 
 def write_valid_ips_to_file(passed_ips):
@@ -227,6 +277,11 @@ def main():
     all_ips = read_all_ips_form_path(g_config.IP_FILE)
     passed_ips = filter_valid_ips(all_ips, g_config.THREAD_NUM,
                                   g_config.NAME_SERVER, g_config.TIME_OUT, g_config.MAX_RETRY)
+    if len(passed_ips) > g_config.MAX_FILTER_RTT_IP_COUNT:
+        print('可用ip 太多，随机挑选{}个'.format(g_config.MAX_FILTER_RTT_IP_COUNT))
+        passed_ips = filter_ip_by_num(
+            passed_ips, g_config.MAX_FILTER_RTT_IP_COUNT)
+    passed_ips = filter_ips_by_rtt(passed_ips)
     if len(passed_ips) > g_config.MAX_FILTER_BETTER_IP_COUNT:
         print('可用ip 太多，随机挑选{}个'.format(g_config.MAX_FILTER_BETTER_IP_COUNT))
         passed_ips = filter_ip_by_num(
