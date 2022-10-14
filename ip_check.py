@@ -283,7 +283,8 @@ def main():
         print('可用ip 太多，随机挑选{}个'.format(g_config.MAX_FILTER_RTT_IP_COUNT))
         passed_ips = filter_ip_by_num(
             passed_ips, g_config.MAX_FILTER_RTT_IP_COUNT)
-    passed_ips = filter_ips_by_rtt(passed_ips)
+    if g_config.RTT_TEST_ENABLED:
+        passed_ips = filter_ips_by_rtt(passed_ips)
     if len(passed_ips) > g_config.MAX_FILTER_BETTER_IP_COUNT:
         print('可用ip 太多，随机挑选{}个'.format(g_config.MAX_FILTER_BETTER_IP_COUNT))
         passed_ips = filter_ip_by_num(

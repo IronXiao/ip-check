@@ -42,6 +42,7 @@ class Config:
     VALID_IP_FILE = 'out.txt'
     BETTER_IP_FILE = 'result.txt'
     NS_TEST_SERVER = 'http://{}/cdn-cgi/trace'
+    RTT_TEST_ENABLED = True
     RTT_TEST_HOST = 'www.cloudflare.com'
     RTT_TEST_TIMEOUT = 5
     RTT_TEST_TIMES = 2

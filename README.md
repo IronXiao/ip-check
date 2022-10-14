@@ -2,10 +2,10 @@
 
 ## 使用方法
 
-1. 修改env.py
+1. 复制env.py.eample 到env.py 并修改
 
    ```python
-   # IP列表输入文件, 
+   # IP列表输入文件,
    # 可以从https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily 保存为cloudflare-daily.zip
    # 或者使用ip.txt
    # 假设ip.txt 是网段的话讲计算出所有子网ip
@@ -28,6 +28,8 @@
    MAX_FILTER_BETTER_IP_COUNT = 200
    # 从可用ip 列表中随机抽选的待测优选${MAX_FILTER_RTT_IP_COUNT}个ip 用来测试RTT
    MAX_FILTER_RTT_IP_COUNT = 100
+   # 是否测试RTT
+   RTT_TEST_ENABLED = True
    # rtt 测试 配置
    RTT_TEST_HOST = 'www.cloudflare.com'
    # RTT 测试请求超时
