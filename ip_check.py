@@ -11,7 +11,8 @@ import re
 import zipfile
 from config import Config
 import ipaddress
-#import pycurl
+import urllib3
+import time
 
 g_config = Config()
 g_lock = threading.Lock()
@@ -46,28 +47,45 @@ def thread_sync(fn):
         g_lock.release()
     return fn_do
 
-# def check_speed(ip):
-#    with open(g_config.TEST_DOWNLOAD_SAVE_FILE, 'wb') as f:
-#        curl = pycurl.Curl()
-#        curl.setopt(curl.URL, g_config.TEST_DOWNLOAD_FILE_LINK)
-#        curl.setopt(curl.TIMEOUT, g_config.TEST_DOWNLOAD_TIMEOUT)
-#        curl.setopt(curl.CONNECTTIMEOUT, g_config.TEST_DOWNLOAD_CONNECTTIMEOUT)
-#        curl.setopt(curl.USERAGENT, g_config.USER_AGENT)
-#        curl.setopt(curl.IPRESOLVE, curl.IPRESOLVE_V4)
-#        curl.setopt(curl.RESOLVE, ['{}:{}:{}'.format(
-#            g_config.TEST_DOWNLOAD_DOMAIN, g_config.TEST_DOWNLOAD_DOMAIN_PORT, ip)])
-#        curl.setopt(curl.WRITEDATA, f)
-#        try:
-#            curl.perform()
-#        except Exception:
-#            pass
-#        speed = int(curl.getinfo(curl.SPEED_DOWNLOAD) / 1024)
-#        print('  {} 平均下载速度为: {} kB/s'.format(ip, speed))
-#        curl.close()
-#        if speed > g_config.EXPECTED_SPEED:
-#            return True, speed
-#        return False, -1
+def check_speed(ip):
+    pool = urllib3.HTTPSConnectionPool(
+        ip, assert_hostname=g_config.TEST_DOWNLOAD_DOMAIN, server_hostname=g_config.TEST_DOWNLOAD_DOMAIN)
+    try:
+        r = pool.urlopen('GET', g_config.TEST_DOWNLOAD_FILE_PATH,
+                     headers={'Host': g_config.TEST_DOWNLOAD_DOMAIN}, assert_same_host=False,
+                     timeout=g_config.TEST_DOWNLOAD_CONNECTTIMEOUT, preload_content=False, retries=g_config.MAX_RETRY)
+        original_start =  time.time()
+        start =  original_start
+        end = original_start
+        original_speed = 0
+        speed = 0
+        size = 0
+        for chunk in r.stream():
+            end = time.time()
+            size += len(chunk)
+            if end - start > 1:
+                speed = size / ((end - start) * 1024)
+                size = 0
+                start = end
+            if speed > original_speed:
+                original_speed = speed
+            if end - original_start > g_config.TEST_DOWNLOAD_TIMEOUT:
+                break
+        r.release_conn()
+        return int(speed)
+    except:
+        return 0
 
+def download_file_from_net(url, save_path):
+    try:
+        r = requests.get(url, stream=True, timeout=g_config.TEST_DOWNLOAD_CONNECTTIMEOUT)
+        with open(save_path, 'wb') as fd:
+            for chunk in r.iter_content(chunk_size=128):
+                fd.write(chunk)
+        r.close()
+    except:
+        return False
+    return True
 
 def find_txt_in_dir(dir):
     L = []
@@ -268,13 +286,17 @@ def filter_better_ip(ips):
     better_ips = {}
     for i in range(0, len(ips)):
         print('正在测速第{}/{}个ip: {}'.format(i+1, len(ips), ips[i]))
-        status, speed = check_speed(ips[i])
-        if status:
+        speed = check_speed(ips[i])
+        print('{} 下载速度为 {} kB/s'.format(ips[i], speed))
+        if speed > g_config.EXPECTED_SPEED:
             better_ips[ips[i]] = speed
     return better_ips
 
 
 def main():
+    if g_config.DOWNLOAD_NET_IP_FILE:
+        r = download_file_from_net(g_config.NET_IP_FILE_URL, g_config.NET_IP_FILE_SAVE_PATH)
+        print('从网络下载ip 文件{}'.format('成功' if r else '失败'))
     print("当前IP列表文件为%s" % g_config.IP_FILE)
     all_ips = read_all_ips_form_path(g_config.IP_FILE)
     passed_ips = filter_valid_ips(all_ips, g_config.THREAD_NUM,

@@ -10,6 +10,12 @@
    # 或者使用ip.txt
    # 假设ip.txt 是网段的话讲计算出所有子网ip
    IP_FILE = 'ip.txt'
+   # 是否下载cloudflare-daily.zip
+   DOWNLOAD_NET_IP_FILE = True
+   # 网络ip 文件下载链接
+   NET_IP_FILE_URL = 'https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily'
+   # 网络ip 文件存储文件名
+   NET_IP_FILE_SAVE_PATH = 'cloudflare-daily.zip'
    # 检查ip 可用性的多线程数量
    THREAD_NUM = 100
    # 检查ip 可用性重试次数
@@ -41,7 +47,7 @@
    # 设置每个ip 的RTT 测试次数
    RTT_TEST_TIMES = 2
    # 测试下载连接超时，当前无效
-   TEST_DOWNLOAD_CONNECTTIMEOUT = 1
+   TEST_DOWNLOAD_CONNECTTIMEOUT = 3
    # 期望网速，当前无效
    EXPECTED_SPEED = 7000
    # 下载测试文件名，当前无效
@@ -53,11 +59,11 @@
    # 下载文件的网络端口，当前无效
    TEST_DOWNLOAD_DOMAIN_PORT = 443
    # 测试下载总时长，当前无效
-   TEST_DOWNLOAD_TIMEOUT = 20
-   # 下载文件路径，当前无效
-   TEST_DOWNLOAD_FILE_PATH = 'archlinux/iso/latest/archlinux-x86_64.iso'
-   # 是否测试下载速度，请勿修改！！！
-   TEST_DOWNLOAD_SPEED = False
+   TEST_DOWNLOAD_TIMEOUT = 10
+   # 下载文件路径
+   TEST_DOWNLOAD_FILE_PATH = '/archlinux/iso/latest/archlinux-x86_64.iso'
+   # 是否测试下载速度
+   TEST_DOWNLOAD_SPEED = True
    ```
 
 2. 按照操作系统选择脚本运行
@@ -77,8 +83,8 @@
 
 ## TODO
 
-- [ ] 使用python完成测速逻辑（当前pycurl 在windows 上无法使用）
-- [ ] windows批处理实现对测速结果排序（不太熟悉batch 脚本语言）
+- [x] 使用python完成测速逻辑（当前pycurl 在windows 上无法使用）
+- [ ] ~~windows批处理实现对测速结果排序（不太熟悉batch 脚本语言）~~
 
 ## 引用说明
 
