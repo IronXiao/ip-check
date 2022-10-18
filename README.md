@@ -71,14 +71,14 @@
    - **windows**
 
      ```bash
-     main.bat
+     ip_check.exe
      ```
 
    - **linux**
 
      ```shell
-     chmod +x main.sh ip_check
-     ./main.sh
+     chmod +x ip_check
+     ./ip_check
      ```
 
 ## TODO
