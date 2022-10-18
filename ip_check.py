@@ -73,6 +73,8 @@ def check_speed(ip):
                 break
         r.release_conn()
         return int(speed)
+    except KeyboardInterrupt:
+        os._exit(0)
     except:
         return 0
 
@@ -83,6 +85,8 @@ def download_file_from_net(url, save_path):
             for chunk in r.iter_content(chunk_size=128):
                 fd.write(chunk)
         r.close()
+    except KeyboardInterrupt:
+        os._exit(0)
     except:
         return False
     return True
@@ -110,6 +114,8 @@ def filter_ip_valid_internal(ip, nameserver, timeout):
                     return False
             else:
                 return False
+    except KeyboardInterrupt:
+        os._exit(0)
     except Exception as e:
         return False
 
@@ -130,7 +136,9 @@ def check_rtt(ip):
                     times.append(r.elapsed.total_seconds()*1000)
                 else:
                     return None, -1
-        except Exception as e:
+        except KeyboardInterrupt:
+            os._exit(0)
+        except Exception:
             return None, -1
         count += 1
     t = int(sum(times)/len(times))
