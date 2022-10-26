@@ -63,7 +63,7 @@ def check_speed(ip):
         for chunk in r.stream():
             end = time.time()
             size += len(chunk)
-            if end - start > 1:
+            if end - start > 0.5:
                 speed = size / ((end - start) * 1024)
                 size = 0
                 start = end
