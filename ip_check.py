@@ -3,6 +3,7 @@
 
 import os
 import random
+import sys
 import threading
 import numpy as np
 import requests
@@ -47,15 +48,16 @@ def thread_sync(fn):
         g_lock.release()
     return fn_do
 
+
 def check_speed(ip):
     pool = urllib3.HTTPSConnectionPool(
         ip, assert_hostname=g_config.TEST_DOWNLOAD_DOMAIN, server_hostname=g_config.TEST_DOWNLOAD_DOMAIN)
     try:
         r = pool.urlopen('GET', g_config.TEST_DOWNLOAD_FILE_PATH,
-                     headers={'Host': g_config.TEST_DOWNLOAD_DOMAIN}, assert_same_host=False,
-                     timeout=g_config.TEST_DOWNLOAD_CONNECTTIMEOUT, preload_content=False, retries=g_config.MAX_RETRY)
-        original_start =  time.time()
-        start =  original_start
+                         headers={'Host': g_config.TEST_DOWNLOAD_DOMAIN}, assert_same_host=False,
+                         timeout=g_config.TEST_DOWNLOAD_CONNECTTIMEOUT, preload_content=False, retries=g_config.MAX_RETRY)
+        original_start = time.time()
+        start = original_start
         end = original_start
         original_speed = 0
         speed = 0
@@ -78,9 +80,11 @@ def check_speed(ip):
     except:
         return 0
 
+
 def download_file_from_net(url, save_path):
     try:
-        r = requests.get(url, stream=True, timeout=g_config.TEST_DOWNLOAD_CONNECTTIMEOUT)
+        r = requests.get(url, stream=True,
+                         timeout=g_config.TEST_DOWNLOAD_CONNECTTIMEOUT)
         with open(save_path, 'wb') as fd:
             for chunk in r.iter_content(chunk_size=128):
                 fd.write(chunk)
@@ -90,6 +94,7 @@ def download_file_from_net(url, save_path):
     except:
         return False
     return True
+
 
 def find_txt_in_dir(dir):
     L = []
@@ -214,6 +219,9 @@ def filter_ip_by_num(all_ips, num):
 
 
 def read_all_ips_form_path(path):
+    if not os.path.exists(path):
+        print(path, '不存在，请检查！！！')
+        exit(0)
     all_ip_files = []
     all_ips = []
     if os.path.isdir(os.path.abspath(path)):
@@ -224,9 +232,6 @@ def read_all_ips_form_path(path):
         all_ips += read_all_ips_form_file(file)
     all_ips = list(dict.fromkeys(all_ips))
     print("共计读取到%d 个ip" % len(all_ips))
-    if len(all_ips) > g_config.MAX_FILTER_VALID_IP_COUNT:
-        print('ip过多,随机挑选{}个测试可用性'.format(g_config.MAX_FILTER_VALID_IP_COUNT))
-        all_ips = filter_ip_by_num(all_ips, g_config.MAX_FILTER_VALID_IP_COUNT)
     return all_ips
 
 
@@ -301,12 +306,71 @@ def filter_better_ip(ips):
     return better_ips
 
 
+def help():
+    print('Usage:', sys.argv[0])
+    print('Usage:', sys.argv[0], '-s', 'ip_source')
+    print('Usage:', sys.argv[0], '-s', 'http(s)_source', '-t', 'zip')
+    print('Usage:', sys.argv[0], '-s',
+          'http(s)_source', '-t', 'zip', '-d', True)
+    print('Usage:', sys.argv[0], '-s',
+          'http(s)_source', '-t', 'zip', '-d', False)
+    exit(0)
+
+
+def load_argvs():
+    if len(sys.argv) == 1:
+        print('使用默认配置运行... ...')
+        return
+    if len(sys.argv) == 2:
+        g_config.IP_LIST = sys.argv[1]
+        print('测试ip或网段为', g_config.IP_LIST)
+        return
+    if '-s' in sys.argv:
+        index_source = sys.argv.index('-s')
+        g_config.IP_SOURCE = sys.argv[index_source + 1:index_source + 2].pop()
+    else:
+        help()
+
+    if '-t' in sys.argv:
+        index_type = sys.argv.index('-t')
+        g_config.SOURCE_TYPE = sys.argv[index_type + 1:index_type + 2].pop()
+    else:
+        if not g_config.IP_SOURCE.startswith('http'):
+            return
+        help()
+
+    if '-d' in sys.argv:
+        index_download = sys.argv.index('-d')
+        g_config.DOWNLOAD_NET_IP_FILE = sys.argv[index_download +
+                                                 1:index_download + 2].pop() == str(True)
+
+
 def main():
-    if g_config.DOWNLOAD_NET_IP_FILE:
-        r = download_file_from_net(g_config.NET_IP_FILE_URL, g_config.NET_IP_FILE_SAVE_PATH)
-        print('从网络下载ip 文件{}'.format('成功' if r else '失败'))
-    print("当前IP列表文件为%s" % g_config.IP_FILE)
-    all_ips = read_all_ips_form_path(g_config.IP_FILE)
+    load_argvs()
+    all_ips = []
+    if g_config.IP_LIST:
+        if is_ip_network(g_config.IP_LIST):
+            all_ips = gen_ip_form_network(g_config.IP_LIST)
+        elif is_ip(g_config.IP_LIST):
+            all_ips.append(g_config.IP_LIST)
+        else:
+            print('ip 参数不合法，请检查！！！')
+            help()
+    else:
+        g_config.IP_DST = g_config.IP_SOURCE
+        if g_config.IP_SOURCE.startswith('http'):
+            g_config.IP_DST = '{}.{}'.format(
+                g_config.NET_IP_FILE_SAVE_NAME, g_config.SOURCE_TYPE)
+            if not not g_config.DOWNLOAD_NET_IP_FILE:
+                r = download_file_from_net(g_config.IP_SOURCE, '{}.{}'.format(
+                    g_config.NET_IP_FILE_SAVE_NAME, g_config.SOURCE_TYPE))
+                print('从网络下载ip 文件{}'.format('成功' if r else '失败'))
+
+        print("当前IP列表文件为%s" % g_config.IP_DST)
+        all_ips = read_all_ips_form_path(g_config.IP_DST)
+    if len(all_ips) > g_config.MAX_FILTER_VALID_IP_COUNT:
+        print('可用ip 太多，随机挑选{}个'.format(g_config.MAX_FILTER_VALID_IP_COUNT))
+        all_ips = filter_ip_by_num(all_ips, g_config.MAX_FILTER_VALID_IP_COUNT)
     passed_ips = filter_valid_ips(all_ips, g_config.THREAD_NUM,
                                   g_config.NAME_SERVER, g_config.TIME_OUT, g_config.MAX_RETRY)
     if len(passed_ips) > g_config.MAX_FILTER_RTT_IP_COUNT:

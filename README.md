@@ -6,22 +6,26 @@
 
    ```python
    # IP列表输入文件,
-   # 可以从https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily 保存为cloudflare-daily.zip
+   # 可以从https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily 保存为${NET_IP_FILE_SAVE_NAME}.${SOURCE_TYPE}
    # 或者使用ip.txt
    # 假设ip.txt 是网段的话讲计算出所有子网ip
-   IP_FILE = 'ip.txt'
-   # 是否下载cloudflare-daily.zip
+   IP_SOURCE = 'ip.txt'
+   # 目标ip 来源文件
+   IP_DST = None
+   # IP 列表, 如单个ip、ip段等
+   IP_LIST = None
+   # ip 文件类型
+   SOURCE_TYPE = 'zip'
+   # 是否下载网络ip 资源文件
    DOWNLOAD_NET_IP_FILE = True
-   # 网络ip 文件下载链接
-   NET_IP_FILE_URL = 'https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily'
    # 网络ip 文件存储文件名
-   NET_IP_FILE_SAVE_PATH = 'cloudflare-daily.zip'
+   NET_IP_FILE_SAVE_NAME = 'download'
    # 检查ip 可用性的多线程数量
    THREAD_NUM = 100
    # 检查ip 可用性重试次数
-   MAX_RETRY = 1
+   MAX_RETRY = 3
    # 检查ip 可用性连接超时
-   TIME_OUT = 2
+   TIME_OUT = 3
    # 检查ip 可用性的域名，只要是使用clouldflare cdn 的网站即可
    NAME_SERVER = 'icook.tw'
    # 可用ip 输出目录
@@ -39,7 +43,7 @@
    # rtt 测试 配置
    RTT_TEST_HOST = 'www.cloudflare.com'
    # RTT 测试请求超时
-   RTT_TEST_TIMEOUT = 4
+   RTT_TEST_TIMEOUT = 5
    # RTT 测试多线程数量
    RTT_TEST_MAX_THREAD_NUM = 20
    # 允许的RTT 延时
@@ -47,7 +51,7 @@
    # 设置每个ip 的RTT 测试次数
    RTT_TEST_TIMES = 2
    # 测试下载连接超时，当前无效
-   TEST_DOWNLOAD_CONNECTTIMEOUT = 3
+   TEST_DOWNLOAD_CONNECTTIMEOUT = 5
    # 期望网速，当前无效
    EXPECTED_SPEED = 7000
    # 下载测试文件名，当前无效
@@ -59,7 +63,7 @@
    # 下载文件的网络端口，当前无效
    TEST_DOWNLOAD_DOMAIN_PORT = 443
    # 测试下载总时长，当前无效
-   TEST_DOWNLOAD_TIMEOUT = 10
+   TEST_DOWNLOAD_TIMEOUT = 15
    # 下载文件路径
    TEST_DOWNLOAD_FILE_PATH = '/archlinux/iso/latest/archlinux-x86_64.iso'
    # 是否测试下载速度
@@ -72,13 +76,24 @@
 
      ```bash
      ip_check.exe
+     ip_check.exe 192.168.1.2
+     ip_check.exe 172.64.248.0/21
+     ip_check.exe -s ip.txt
+     ip_check.exe -s http://aaa.bb.cc -t zip
+     ip_check.exe -s http://aaa.bb.cc -t zip -d False
+     ip_check.exe -s http://aaa.bb.cc -t zip -d True
      ```
-
+   
    - **linux**
-
+   
      ```shell
      chmod +x ip_check
      ./ip_check
+     ./ip_check 172.64.248.0/21
+     ./ip_check -s ip.txt
+     ./ip_check -s http://aaa.bb.cc -t zip
+     ./ip_check -s http://aaa.bb.cc -t zip -d False
+     ./ip_check -s http://aaa.bb.cc -t zip -d True
      ```
 
 ## TODO

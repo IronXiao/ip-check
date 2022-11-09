@@ -31,10 +31,12 @@ def singleton(cls):
 @singleton
 class Config:
     CONFIG_FILE = "env.py"
-    IP_FILE = 'cloudflare-daily.zip'
-    DOWNLOAD_NET_IP_FILE = True
-    NET_IP_FILE_URL = 'https://codeload.github.com/ip-scanner/cloudflare/zip/refs/heads/daily'
-    NET_IP_FILE_SAVE_PATH = 'cloudflare-daily.zip'
+    IP_SOURCE = 'cloudflare-daily.zip'
+    IP_DST = None
+    IP_LIST = None
+    SOURCE_TYPE = 'txt'
+    DOWNLOAD_NET_IP_FILE = False
+    NET_IP_FILE_SAVE_NAME = 'download'
     THREAD_NUM = 10
     MAX_RETRY = 2
     TIME_OUT = 3
