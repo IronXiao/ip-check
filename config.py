@@ -32,11 +32,8 @@ def singleton(cls):
 class Config:
     CONFIG_FILE = "env.py"
     IP_SOURCE = 'cloudflare-daily.zip'
-    IP_DST = None
-    IP_LIST = None
-    SOURCE_TYPE = 'txt'
-    DOWNLOAD_NET_IP_FILE = False
-    NET_IP_FILE_SAVE_NAME = 'download'
+    NET_IP_FILE_SAVE_PATH = 'download.bin'
+    PROXY = None
     THREAD_NUM = 10
     MAX_RETRY = 2
     TIME_OUT = 3
@@ -55,14 +52,10 @@ class Config:
     RTT_ALLOWED_TIMEOUT = 2500
     NS_TEST_RESPONSE = 'h={}'
     TEST_DOWNLOAD_DOMAIN = 'cloudflaremirrors.com'
-    TEST_DOWNLOAD_DOMAIN_PORT = 443
     TEST_DOWNLOAD_TIMEOUT = 10
     TEST_DOWNLOAD_CONNECTTIMEOUT = 3
     TEST_DOWNLOAD_FILE_PATH = '/archlinux/iso/latest/archlinux-x86_64.iso'
-    TEST_DOWNLOAD_SAVE_FILE = 'down.bin'
-    USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
     EXPECTED_SPEED = 5*1024
-    TEST_DOWNLOAD_SPEED = False
 
     envs = []
 

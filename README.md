@@ -10,16 +10,10 @@
    # 或者使用ip.txt
    # 假设ip.txt 是网段的话讲计算出所有子网ip
    IP_SOURCE = 'ip.txt'
-   # 目标ip 来源文件
-   IP_DST = None
-   # IP 列表, 如单个ip、ip段等
-   IP_LIST = None
-   # ip 文件类型
-   SOURCE_TYPE = 'zip'
-   # 是否下载网络ip 资源文件
-   DOWNLOAD_NET_IP_FILE = True
-   # 网络ip 文件存储文件名
-   NET_IP_FILE_SAVE_NAME = 'download'
+   # 网络下载ip 资源文件的代理
+   PROXY = None
+   # 网络资源ip 文件本地存储路径
+   NET_IP_FILE_SAVE_PATH = 'download.bin'
    # 检查ip 可用性的多线程数量
    THREAD_NUM = 100
    # 检查ip 可用性重试次数
@@ -50,24 +44,16 @@
    RTT_ALLOWED_TIMEOUT = 2500
    # 设置每个ip 的RTT 测试次数
    RTT_TEST_TIMES = 2
-   # 测试下载连接超时，当前无效
+   # 测试下载连接超时
    TEST_DOWNLOAD_CONNECTTIMEOUT = 5
-   # 期望网速，当前无效
+   # 期望网速
    EXPECTED_SPEED = 7000
-   # 下载测试文件名，当前无效
-   TEST_DOWNLOAD_SAVE_FILE = 'down.bin'
-   # 下载时使用的浏览器标识，当前无效
-   USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
-   # 下载文件domain，当前无效
+   # 下载文件domain
    TEST_DOWNLOAD_DOMAIN = 'cloudflaremirrors.com'
-   # 下载文件的网络端口，当前无效
-   TEST_DOWNLOAD_DOMAIN_PORT = 443
-   # 测试下载总时长，当前无效
+   # 测试下载总时长
    TEST_DOWNLOAD_TIMEOUT = 15
    # 下载文件路径
    TEST_DOWNLOAD_FILE_PATH = '/archlinux/iso/latest/archlinux-x86_64.iso'
-   # 是否测试下载速度
-   TEST_DOWNLOAD_SPEED = True
    ```
 
 2. 按照操作系统选择脚本运行
@@ -76,24 +62,17 @@
 
      ```bash
      ip_check.exe
-     ip_check.exe 192.168.1.2
-     ip_check.exe 172.64.248.0/21
-     ip_check.exe -s ip.txt
-     ip_check.exe -s http://aaa.bb.cc -t zip
-     ip_check.exe -s http://aaa.bb.cc -t zip -d False
-     ip_check.exe -s http://aaa.bb.cc -t zip -d True
+     ip_check.exe arg1
+     arg1 可选参数为 文件、目录、下载链接、ip、网段
      ```
-   
+
    - **linux**
    
      ```shell
      chmod +x ip_check
      ./ip_check
-     ./ip_check 172.64.248.0/21
-     ./ip_check -s ip.txt
-     ./ip_check -s http://aaa.bb.cc -t zip
-     ./ip_check -s http://aaa.bb.cc -t zip -d False
-     ./ip_check -s http://aaa.bb.cc -t zip -d True
+     ./ip_check arg1
+     arg1 可选参数为 文件、目录、下载链接、ip、网段
      ```
 
 ## TODO
