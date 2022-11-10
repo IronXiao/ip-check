@@ -227,7 +227,7 @@ def filter_ip_by_num(all_ips, num):
 def read_all_ips_form_path(path):
     if not os.path.exists(path):
         print(path, '不存在，请检查！！！')
-        exit(0)
+        os._exit(0)
     all_ip_files = []
     all_ips = []
     if os.path.isdir(os.path.abspath(path)):
@@ -315,7 +315,7 @@ def help():
     print('Usage:', sys.argv[0])
     print('Usage:', sys.argv[0], 'arg1')
     print('arg1 可选参数为', '文件、目录、下载链接、ip、网段')
-    exit(0)
+    os._exit(0)
 
 
 def gen_ip_by_args_internal(arg):
@@ -351,7 +351,7 @@ def gen_ip_list_by_args():
         return ip_list
     else:
         print("没有生成有效ip 列表，请检查参数！！！")
-        exit(0)
+        os._exit(0)
 
 
 def main():
