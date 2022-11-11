@@ -25,8 +25,9 @@ def main():
     try:
         req = requests.get('https://google.hk', proxies=proxies, timeout=5)
         status_code = req.status_code
+        latency = int(req.elapsed.total_seconds() * 1000)
         req.close()
-        result_str = '可用' if status_code == 200 else '不可用'
+        result_str = '可用,延迟为{} ms'.format(latency) if status_code == 200 else '不可用'
         print(proxy, result_str)
     except Exception as e:
         print(proxy, '测试异常:', e)
