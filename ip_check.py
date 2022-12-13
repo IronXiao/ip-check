@@ -50,35 +50,57 @@ def thread_sync(fn):
 
 
 def check_speed(ip):
-    pool = urllib3.HTTPSConnectionPool(
-        ip, assert_hostname=g_config.TEST_DOWNLOAD_DOMAIN, server_hostname=g_config.TEST_DOWNLOAD_DOMAIN)
-    try:
-        r = pool.urlopen('GET', g_config.TEST_DOWNLOAD_FILE_PATH,
-                         headers={'Host': g_config.TEST_DOWNLOAD_DOMAIN}, assert_same_host=False,
-                         timeout=g_config.TEST_DOWNLOAD_CONNECTTIMEOUT, preload_content=False, retries=g_config.MAX_RETRY)
+    size = 0
+    download_exit = False
+    speed = 0
+    stop_signal = False
+
+    def download():
+        nonlocal download_exit
+        pool = urllib3.HTTPSConnectionPool(
+            ip, assert_hostname=g_config.TEST_DOWNLOAD_DOMAIN, server_hostname=g_config.TEST_DOWNLOAD_DOMAIN)
+        try:
+            r = pool.urlopen('GET', g_config.TEST_DOWNLOAD_FILE_PATH,
+                             headers={'Host': g_config.TEST_DOWNLOAD_DOMAIN}, assert_same_host=False,
+                             timeout=g_config.TEST_DOWNLOAD_CONNECTTIMEOUT, preload_content=False, retries=g_config.MAX_RETRY)
+            nonlocal size
+            for chunk in r.stream():
+                size += len(chunk)
+                if stop_signal:
+                    break
+            r.release_conn()
+        except KeyboardInterrupt:
+            os._exit(0)
+        except:
+            pass
+        download_exit = True
+
+    def cal_speed():
+        nonlocal speed, size, stop_signal
         original_start = time.time()
-        start = original_start
-        end = original_start
-        original_speed = 0
-        speed = 0
-        size = 0
-        for chunk in r.stream():
+        start = time.time()
+        old_size = size
+        while not download_exit:
+            time.sleep(0.1)
             end = time.time()
-            size += len(chunk)
-            if end - start > 0.5:
-                speed = size / ((end - start) * 1024)
-                size = 0
+            if end - start > 0.9:
+                cur_size = size
+                speed_now = int((cur_size - old_size) / ((end - start) * 1024))
                 start = end
-            if speed > original_speed:
-                original_speed = speed
+                old_size = cur_size
+                if speed_now > speed:
+                    speed = speed_now
             if end - original_start > g_config.TEST_DOWNLOAD_TIMEOUT:
+                stop_signal = True
                 break
-        r.release_conn()
-        return int(speed)
-    except KeyboardInterrupt:
-        os._exit(0)
-    except:
-        return 0
+
+    t1 = threading.Thread(target=download)
+    t2 = threading.Thread(target=cal_speed)
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+    return speed
 
 
 def download_file_from_net(url, save_path):
